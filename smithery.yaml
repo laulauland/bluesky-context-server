@@ -1,0 +1,21 @@
+# Smithery configuration file: https://smithery.ai/docs/config#smitheryyaml
+
+startCommand:
+  type: stdio
+  configSchema:
+    # JSON Schema defining the configuration options for the MCP.
+    type: object
+    required:
+      - blueskyAppKey
+      - blueskyIdentifier
+    properties:
+      blueskyAppKey:
+        type: string
+        description: The application key for Bluesky.
+      blueskyIdentifier:
+        type: string
+        description: The identifier for the Bluesky instance.
+  commandFunction:
+    # A function that produces the CLI command to start the MCP on stdio.
+    |-
+    (config) => ({command: 'bun', args: ['index.ts'], env: {BLUESKY_APP_KEY: config.blueskyAppKey, BLUESKY_IDENTIFIER: config.blueskyIdentifier}})
