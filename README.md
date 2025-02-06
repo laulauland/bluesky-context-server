@@ -1,5 +1,6 @@
 # Bluesky Context Server
 [![smithery badge](https://smithery.ai/badge/bluesky-context-server)](https://smithery.ai/server/bluesky-context-server)
+[![smithery badge](https://smithery.ai/badge/@laulauland/bluesky-context-server)](https://smithery.ai/server/@laulauland/bluesky-context-server)
 
 A simple MCP server that can enable MCP clients to query Bluesky instances.
 
@@ -7,10 +8,10 @@ A simple MCP server that can enable MCP clients to query Bluesky instances.
 
 ### Installing via Smithery
 
-To install Bluesky Context Server for Claude Desktop automatically via [Smithery](https://smithery.ai/server/bluesky-context-server):
+To install Bluesky Context Server for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@laulauland/bluesky-context-server):
 
 ```bash
-npx -y @smithery/cli install bluesky-context-server --client claude
+npx -y @smithery/cli install @laulauland/bluesky-context-server --client claude
 ```
 
 ### Installing manually
