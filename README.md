@@ -1,6 +1,5 @@
 # Bluesky Context Server
 [![smithery badge](https://smithery.ai/badge/bluesky-context-server)](https://smithery.ai/server/bluesky-context-server)
-[![smithery badge](https://smithery.ai/badge/@laulauland/bluesky-context-server)](https://smithery.ai/server/@laulauland/bluesky-context-server)
 
 A simple MCP server that can enable MCP clients to query Bluesky instances.
 
