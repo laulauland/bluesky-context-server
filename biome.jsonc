@@ -1,4 +1,21 @@
 {
 	"$schema": "node_modules/@biomejs/biome/configuration_schema.json",
-	"organizeImports": { "enabled": true }
+	"organizeImports": { "enabled": true },
+	"linter": {
+		"rules": {
+			"suspicious": {
+				"noConsole": { "level": "error", "options": { "allow": ["error"] } }
+			}
+		}
+	},
+	"javascript": {
+		"linter": {
+			"enabled": true
+		}
+	},
+	"json": {
+		"formatter": {
+			"trailingCommas": "none"
+		}
+	}
 }

@@ -50,10 +50,7 @@ export async function main() {
 		},
 	);
 
-	server.sendLoggingMessage({
-		level: "debug",
-		data: "Starting Bluesky Context server",
-	});
+	console.error("Starting Bluesky Context server");
 
 	const session = new CredentialSession(new URL("https://bsky.social"));
 
@@ -72,7 +69,7 @@ export async function main() {
 	server.setRequestHandler(
 		CallToolRequestSchema,
 		async (request: CallToolRequest) => {
-			console.log("Received CallToolRequest:", request);
+			console.error("Received CallToolRequest:", request);
 			try {
 				if (!request.params.arguments) {
 					throw new Error("No arguments provided");
@@ -197,7 +194,7 @@ export async function main() {
 	);
 
 	server.setRequestHandler(ListToolsRequestSchema, async () => {
-		console.log("Received ListToolsRequest");
+		console.error("Received ListToolsRequest");
 		return {
 			tools: [
 				getProfileTool,
@@ -214,8 +211,8 @@ export async function main() {
 	});
 
 	const transport = new StdioServerTransport();
-	console.log("Connecting server to transport...");
+	console.error("Connecting server to transport...");
 	await server.connect(transport);
 
-	console.log("Bluesky MCP Server running on stdio");
+	console.error("Bluesky MCP Server running on stdio");
 }

@@ -5,7 +5,8 @@
 	"scripts": {
 		"start": "bun index.ts",
 		"inspector": "mcp-inspector",
-		"format": "biome format --write ."
+		"format": "biome format --write .",
+		"lint": "biome lint ."
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
