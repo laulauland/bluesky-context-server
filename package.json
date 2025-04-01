@@ -2,14 +2,19 @@
   "name": "bluesky-context-server",
   "module": "index.ts",
   "type": "module",
+	"scripts": {
+		"start": "bun index.ts",
+		"inspector": "mcp-inspector"
+	},
   "devDependencies": {
+    "@modelcontextprotocol/inspector": "^0.7.0",
     "@types/bun": "latest"
   },
   "peerDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^5.7.2"
   },
   "dependencies": {
-    "@atproto/api": "^0.13.18",
-    "@modelcontextprotocol/sdk": "^1.0.1"
+    "@atproto/api": "^0.13.35",
+    "@modelcontextprotocol/sdk": "^1.8.0"
   }
 }
