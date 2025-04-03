@@ -23,8 +23,5 @@
 			"quoteStyle": "double",
 			"trailingComma": "es5"
 		}
-	},
-	"files": {
-		"include": ["packages/**/*.ts", "*.ts"]
 	}
 }
