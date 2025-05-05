@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/laulauland-bluesky-context-server-badge.png)](https://mseep.ai/app/laulauland-bluesky-context-server)
+
 # Bluesky Context Server
 [![smithery badge](https://smithery.ai/badge/bluesky-context-server)](https://smithery.ai/server/bluesky-context-server)
 
