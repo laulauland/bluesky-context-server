@@ -53,7 +53,7 @@ export function tryCatch<T, E = Error>(fn: () => T): Result<T, E> {
  * ```
  */
 export async function tryCatchAsync<T, E = Error>(
-	promise: Promise<T>
+	promise: Promise<T>,
 ): Promise<Result<T, E>> {
 	try {
 		const data = await promise;

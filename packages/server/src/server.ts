@@ -1,25 +1,8 @@
 import { Agent as BskyAgent, CredentialSession } from "@atproto/api";
-import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+// no additional types needed here
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import {
-	type CallToolRequest,
-	CallToolRequestSchema,
-	ListToolsRequestSchema,
-} from "@modelcontextprotocol/sdk/types.js";
-
-import {
-	getFollowers,
-	getFollows,
-	getLikedPosts,
-	getPersonalFeed,
-	getPosts,
-	getProfile,
-	searchPosts,
-	searchProfiles,
-	toolDefinitions,
-} from "./tools.js";
-import { tryCatchAsync } from "./utils.js";
+import { createTools, type ToolDefinition } from "./tools.ts";
 
 export interface BlueskyCredentials {
 	identifier: string;
@@ -27,155 +10,79 @@ export interface BlueskyCredentials {
 	serviceUrl?: string;
 }
 
-export interface BlueskyContextServerOptions {
+export interface LocalSetupServerOptions {
+	server: McpServer;
 	credentials: BlueskyCredentials;
-	mode?: BlueskyContextServerMode;
+	mode: "local";
 }
 
-type BlueskyContextServerMode = "local" | "remote";
+export interface RemoteSetupServerOptions {
+	server: McpServer;
+	getAgent: () => BskyAgent;
+	userIdentifier: string;
+	mode: "remote";
+}
 
-export class BlueskyContextServer {
-	public server: McpServer;
-	bskyAgent: BskyAgent | null = null;
-	private credentials: BlueskyCredentials;
-	mode: BlueskyContextServerMode;
+export type SetupServerOptions =
+	| LocalSetupServerOptions
+	| RemoteSetupServerOptions;
 
-	constructor({ credentials, mode = "local" }: BlueskyContextServerOptions) {
-		this.credentials = credentials;
-		this.mode = mode;
-
-		this.server = new McpServer({
-			name: "Bluesky MCP Server",
-			version: "1.0.0",
-		});
-
-		// this.server = new Server(
-		// 	{
-		// 		name: "Bluesky MCP Server",
-		// 		version: "1.0.0",
-		// 	},
-		// 	{
-		// 		capabilities: {
-		// 			tools: toolDefinitions,
-		// 		},
-		// 	}
-		// );
-
-		this.server.setRequestHandler(ListToolsRequestSchema, async () => {
-			return { tools: Object.values(toolDefinitions) };
-		});
-
-		this.server.setRequestHandler(
-			CallToolRequestSchema,
-			async (request: CallToolRequest) => {
-				const { data, error } = await tryCatchAsync(
-					this.handleRequest(request)
-				);
-
-				if (error) {
-					return {
-						content: [
-							{
-								type: "text",
-								text: JSON.stringify({
-									error: error instanceof Error ? error.message : String(error),
-								}),
-							},
-						],
-					};
-				}
-				return data;
-			}
-		);
+export async function setupServer(opts: SetupServerOptions): Promise<void> {
+	if (opts.mode === "local") {
+		await setupLocalServer(opts.server, opts.credentials);
+	} else {
+		setupRemoteServer(opts.server, opts.getAgent, opts.userIdentifier);
 	}
+}
 
-	private async initBskyAgent() {
-		const {
-			identifier,
-			appKey,
-			serviceUrl = "https://bsky.social",
-		} = this.credentials;
+/**
+ * Perform local server setup: login, register tools, and connect transport.
+ */
+async function setupLocalServer(
+	server: McpServer,
+	credentials: BlueskyCredentials,
+): Promise<void> {
+	const {
+		identifier,
+		appKey,
+		serviceUrl = "https://bsky.social",
+	} = credentials;
+	const session = new CredentialSession(new URL(serviceUrl));
+	const login = await session.login({ identifier, password: appKey });
+	if (!login.success) throw new Error("Bluesky login failed");
 
-		const serviceURL = serviceUrl
-			? new URL(serviceUrl)
-			: new URL("https://bsky.social");
-		const session = new CredentialSession(serviceURL);
+	const agent = new BskyAgent(session);
+	const agentGetter = () => agent;
+	registerBlueskyTools(server, agentGetter, identifier);
 
-		const loginResponse = await session.login({
-			identifier,
-			password: appKey,
-		});
+	const transport = new StdioServerTransport();
+	await server.connect(transport);
+}
 
-		if (!loginResponse.success) {
-			throw new Error("Failed to login to Bluesky");
-		}
+/**
+ * Perform remote server setup: register tools using provided agent.
+ */
+function setupRemoteServer(
+	server: McpServer,
+	getAgent: () => BskyAgent,
+	userIdentifier: string,
+): void {
+	registerBlueskyTools(server, getAgent, userIdentifier);
+}
 
-		this.bskyAgent = new BskyAgent(session);
-	}
-
-	async start() {
-		await this.initBskyAgent();
-
-		if (!this.bskyAgent) {
-			throw new Error("Failed to initialize Bluesky agent");
-		}
-
-		if (this.mode === "local") {
-			const transport = new StdioServerTransport();
-			await this.server.connect(transport);
-		}
-
-		if (this.mode === "remote") {
-			throw new Error("Remote mode not implemented");
-		}
-	}
-
-	async handleRequest(request: CallToolRequest) {
-		const identifier = this.credentials.identifier;
-
-		if (!request.params.arguments) {
-			throw new Error("No arguments provided");
-		}
-
-		if (!this.bskyAgent) {
-			throw new Error("No bluesky agent configured");
-		}
-
-		switch (request.params.name) {
-			case "bluesky_get_profile":
-				return await getProfile(this.bskyAgent, identifier);
-			case "bluesky_get_posts":
-				return await getPosts(
-					this.bskyAgent,
-					identifier,
-					request.params.arguments
-				);
-			case "bluesky_search_posts":
-				return await searchPosts(this.bskyAgent, request.params.arguments);
-			case "bluesky_get_follows":
-				return await getFollows(
-					this.bskyAgent,
-					identifier,
-					request.params.arguments
-				);
-			case "bluesky_get_followers":
-				return await getFollowers(
-					this.bskyAgent,
-					identifier,
-					request.params.arguments
-				);
-			case "bluesky_get_liked_posts":
-				return await getLikedPosts(
-					this.bskyAgent,
-					identifier,
-					request.params.arguments
-				);
-			case "bluesky_get_personal_feed":
-				return await getPersonalFeed(this.bskyAgent, request.params.arguments);
-			case "bluesky_search_profiles":
-				return await searchProfiles(this.bskyAgent, request.params.arguments);
-			default:
-				throw new Error(`Unknown tool: ${request.params.name}`);
+export function registerBlueskyTools(
+	server: McpServer,
+	getAgent: () => BskyAgent,
+	userIdentifier: string,
+): void {
+	const tools: ToolDefinition[] = createTools(getAgent, userIdentifier);
+	for (const tool of tools) {
+		if (tool.schema === undefined) {
+			server.tool(tool.name, tool.description, (extra) => tool.callback(extra));
+		} else {
+			server.tool(tool.name, tool.description, tool.schema, (args, extra) =>
+				tool.callback(args, extra),
+			);
 		}
 	}
 }

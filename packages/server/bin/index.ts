@@ -1,6 +1,7 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node --experimental-strip-types
 
-import { BlueskyContextServer } from "../src/server.js";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { setupServer } from "../src/server.ts";
 
 async function main() {
 	const blueskyToken = process.env.BLUESKY_APP_KEY;
@@ -12,13 +13,20 @@ async function main() {
 		process.exit(1);
 	}
 
-	const server = new BlueskyContextServer({credentials: {
-		identifier: blueskyIdentifier,
-		appKey: blueskyToken,
-		serviceUrl: serviceUrl,
-	}});
+	const server = new McpServer({
+		name: "Bluesky MCP Server",
+		version: "1.0.0",
+	});
 
-	await server.start();
+	await setupServer({
+		server,
+		credentials: {
+			appKey: blueskyToken,
+			identifier: blueskyIdentifier,
+			...(serviceUrl && { serviceUrl }),
+		},
+		mode: "local",
+	});
 }
 
 main().catch((error) => {

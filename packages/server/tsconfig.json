@@ -1,20 +1,18 @@
 {
-  "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "strict": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "outDir": "./dist",
-    "declaration": true,
-    "sourceMap": true,
-    "rootDir": "./src",
-    "types": ["bun-types"],
-    "composite": true
-  },
-  "include": ["src/**/*.ts", "run.ts"],
-  "exclude": ["node_modules", "dist"]
+	"compilerOptions": {
+		"target": "ESNext",
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
+		"allowImportingTsExtensions": true,
+		"noEmit": true,
+		"resolveJsonModule": true,
+		"esModuleInterop": true,
+		"strict": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"types": ["bun-types"],
+		"verbatimModuleSyntax": true
+	},
+	"include": ["src/**/*.ts", "bin/**/*.ts"],
+	"exclude": ["node_modules", "dist"]
 }

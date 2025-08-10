@@ -1,27 +1,32 @@
 {
-  "name": "bluesky-context-server",
-  "version": "1.0.0",
-  "type": "module",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/types/index.d.ts"
-    }
-  },
-  "bin": {
-    "bluesky-context-server": "./bin/index.ts"
-  },
-  "scripts": {
-    "start": "bun ./bin/index.ts",
-    "build": "bun run scripts/build.ts",
-    "inspector": "mcp-inspector bun ./bin/index.ts"
-  },
-  "dependencies": {
-    "@atproto/api": "^0.13.35",
-    "@modelcontextprotocol/sdk": "^1.8.0"
-  },
-  "devDependencies": {
-    "@modelcontextprotocol/inspector": "^0.7.0",
-    "@types/bun": "latest"
-  }
+	"name": "bluesky-context-server",
+	"version": "1.0.0",
+	"type": "module",
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"types": "./dist/types/index.d.ts"
+		}
+	},
+	"bin": {
+		"bluesky-context-server": "./bin/index.ts"
+	},
+	"scripts": {
+		"start": "bun ./bin/index.ts",
+		"start:node": "node --experimental-strip-types ./bin/index.ts",
+		"build": "bun run scripts/build.ts",
+		"inspector": "mcp-inspector bun ./bin/index.ts",
+		"inspector:node": "mcp-inspector ./bin/index.ts",
+		"typecheck": "tsc --noEmit",
+		"lint": "biome check --write . ",
+		"format": "biome format --write ."
+	},
+	"dependencies": {
+		"@atproto/api": "^0.15.27",
+		"@modelcontextprotocol/sdk": "^1.17.2"
+	},
+	"devDependencies": {
+		"@modelcontextprotocol/inspector": "^0.16.2",
+		"@types/bun": "^1.2.10"
+	}
 }
